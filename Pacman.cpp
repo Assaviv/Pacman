@@ -12,7 +12,8 @@
 *		 ~~Fruit to collect more points
 *		 ~~~Settings and more customization
 *		 ~~~~Kill ghosts option
-*		 ~~~~~Kill works baddd
+*		 ~~~~~Kill works bad
+*		 ~~~~~~Try catch.. throw smth when killed so the catch will handle the death
 *********************************************/
 /////////////////////////////////////////////
 /* .map files will be in levels dir and will be read according to this protocol: 
@@ -78,7 +79,7 @@ int main()
 		{		
 			b->printBoard();
 			dur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-			if (dur.count() > 150)
+			if (dur.count() > 150 && b->isalive())
 			{
 				b->ghost2();
 				b->ghost2();
@@ -91,8 +92,9 @@ int main()
 				}
 				exit = b->move(lastKey);
 				score = b->getScore();
-				if (score >= WINNING_SCORE)
+				if (score >= WINNING_SCORE || !b->isalive())
 				{
+					goto done;
 					out = true;
 					break;
 				}
@@ -116,7 +118,7 @@ int main()
 			score = b->getScore();
 			Sleep(150);
 		}
-
+		done:
 		if (score >= WINNING_SCORE)
 		{
 			win = true;

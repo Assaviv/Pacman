@@ -36,7 +36,7 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 	std::mt19937 gen(rd());
 	std::uniform_int_distribution<> distrib(0, 3);
 	int r = 0, count = 0;
-	int temp = ' ';
+	char temp = ' ';
 	bool again = true;
 	while (again)
 	{
@@ -45,7 +45,7 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 		r = distrib(gen);
 		switch (r)
 		{
-		case 1:
+		case 1: // down
 			if (b[this->_x + 1][this->_y] == char(DOT) || b[this->_x + 1][this->_y] == ' ')
 			{
 				temp = b[this->_x + 1][this->_y];
@@ -127,7 +127,6 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 			break;
 		}
 		count++;
-		gotoxy(0, 0);
 	}
 }
 

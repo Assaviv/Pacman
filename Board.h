@@ -289,7 +289,6 @@ inline bool Board::move(char dir)
 			}
 		}
 	}
-	gotoxy(0, 0);
 	return true;
 }
 
