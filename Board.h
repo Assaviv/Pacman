@@ -1,5 +1,10 @@
 ﻿#pragma once
-
+/**************************
+* TODO: H&L size read from
+* .map file and then insert
+* to them but default map
+* is built in to the code.
+**************************/
 #define H_BOARD_SIZE 20
 #define L_BOARD_SIZE 40
 #define WALL '#'
@@ -16,8 +21,8 @@
 #include <stdio.h>
 #include <string>
 #include <Windows.h>
-#include <time.h>
-#include <stdlib.h>
+#include <time.h> // for random may not being in use
+#include <stdlib.h> // ^ as well
 #include "ghost.h"
 
 char open_ = '{';
@@ -26,26 +31,31 @@ char close_ = '<';
 class Board
 {
 public:
-	Board();
-	~Board();
-	void printBoard();
-	void finish();
-	bool move(char dir);
-	void ghost1();
-	void ghost2();	
-	char** _board;
-	bool isalive();
-	int getScore();
+	Board();  /* TODO gets parameter of level, Board be built accordingly 
+			     By default he will build the regular level. else will call
+				 a new function that will get level as well and will return
+				 char** map accordingly.. */
+	~Board(); // Release memory of the board.
+	void printBoard(); // print each char according to color code.
+	void finish();  // clear the broad from all the points
+	bool move(char dir);  // move char according to the direction..
+	void ghost1();  /*	will be remove for new ghost acting,		*/
+	void ghost2();	/*			the ghost now moves randomly to the same spot*/
+	char** _board;  // try to make it  private
+	bool isalive(); // getter
+	int getScore(); // ^ as well
+	void gotoxy(size_t x, size_t y);
 private:
 	bool alive;
-	Ghost g1;
-	Ghost g2;
-	Ghost g3;
-	Ghost g4;
-	int _x;
+	Ghost g1;    // will be generated differently
+	Ghost g2;   //  -- Ghost[] list that initialize in the Board constructor
+	Ghost g3;  //   ---- so the handling of ghost will be more efficient
+	Ghost g4; //    ------ and need to add option to eat ghost killer
+	int _x;  //     position of Panama
 	int _y;
-	int score;
-	bool open;
+	int score;  // the total points eaten multilayer by 10 
+			   //  -- TODO: option to eat bonus fruit for extra points (100 for fruit will be fare) 
+	bool open;//   Conditional variable for pacman mouth condition (open - '{' / '}' or close '<' / '>')
 };
 
 Board::Board()

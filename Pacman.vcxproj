@@ -146,6 +146,13 @@
   <ItemGroup>
     <ClInclude Include="Board.h" />
     <ClInclude Include="ghost.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Pacman.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Debug\pacman.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

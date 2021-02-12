@@ -3,23 +3,45 @@
 #include <Windows.h>
 #include "Board.h"
 #include <conio.h>
-#include <cwchar>
-#include <thread>
+#include "resource.h"
 
-#define UP 72
+/*********************************************
+* ~TODO: file system with .map files
+*		 ~Warm holes (according to protocol)
+*		 ~~Fruit to collect more points
+*		 ~~~Settings and more customization
+*		 ~~~~Kill ghosts option
+*********************************************/
+/////////////////////////////////////////////
+/* .map files will be in levels dir and will be read according to this protocol: 
+*		line: command
+*		1:	  rows
+*		2:    cols
+*		3 -> rows*cols + 2:    map
+*		map: 
+*		@ - pacman
+*		# - wall
+*		g - ghost
+*		0:9 - fruit,  different colors
+*		w - warm hole (only one is allowed)
+*       . / space - points
+*/
+#define UP 72   /// try to get key without ASCII
 #define DOWN 80
 
 int WINNING_SCORE = 2500;
 HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
-void banner();
+void banner(); // make banner more change able, include settings and levels
 
 int main()
 {
+	/* Variables: */
 	auto ans = IDYES;
 	bool exit = true, win = false;
 	int score = false;
 	Board* b = new Board();
 	char mov = ' ';
+	/* Console defaults */
 	CONSOLE_FONT_INFOEX cfi;
 	cfi.cbSize = sizeof(cfi);
 	cfi.nFont = 0;
@@ -34,9 +56,11 @@ int main()
 	lpCursor.bVisible = false;
 	lpCursor.dwSize = 20;
 	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &lpCursor);
+	/* Game start menu */
 	system("mode 40,14");
 	printf("\x1b[d");
-	banner();
+	banner(); // maybe will need to return value and built Board* b here.
+	/* Game start level */
 	system("mode 40,22");
 	while (exit && b->isalive())
 	{
@@ -54,8 +78,9 @@ int main()
 			exit = false;
 		}
 		printf("\x1b[d");
-		//Sleep(100);
+		//Sleep(100);  // option for slower game check
 	}
+	/* End of the game */
 	(win) ? (PlaySoundW(TEXT("music/tada.wav"), NULL, SND_FILENAME | SND_ASYNC)) : (PlaySoundW(TEXT("music/death.wav"), NULL, SND_FILENAME | SND_ASYNC));
 	b->finish();
 	system("mode 40,25");
@@ -63,11 +88,12 @@ int main()
 	// TODO: replace all () ? () : ();
 	(win) ? (std::cout << "----------------------------------------\n" << "-----------YOU-----------WIN!-----------\n\a" << "----------------------------------------\n") :
 		(std::cout << "----------------------------------------\n" << "-----------YOU-----------LOST-----------\n\a" << "----------------------------------------\n");
-	(win) ? (ans = MessageBox(NULL, L"You succeed collecting all the points!\nDo you wanna play again?", L"Congratulation!", MB_YESNO)) : (ans = MessageBox(NULL, L"You were killed by a ghost👻\nDo you wanna play again?", L"Oh No!", MB_YESNO));
+	(win) ? (ans = MessageBox(NULL, L"You succeed collecting all the points!\nDo you wanna play again?", L"Congratulation!", MB_YESNO)):
+		(ans = MessageBox(NULL, L"You were killed by a ghost👻\nDo you wanna play again?", L"Oh No!", MB_YESNO));
 	lpCursor.bVisible = true;
 	lpCursor.dwSize = 10;
 	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &lpCursor);
-	if (ans == IDYES)
+	if (ans == IDYES)  // maybe gets it up a bit..
 		main();
 	return 0;
 }
@@ -86,19 +112,13 @@ void banner()
 			if (place == 0)
 				break;
 			else
-			{
-				//blip();
 				place--;
-			}
 			break;
 		case DOWN:
 			if (place == 2)
 				break;
 			else
-			{
-				//blip();
 				place++;
-			}
 			break;
 		default:
 			break;

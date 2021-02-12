@@ -1,6 +1,2 @@
 ﻿  Pacman.cpp
-C:\Users\Aviv\Desktop\stiven hacking\Pacman\ghost.h(33,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\Aviv\Desktop\stiven hacking\Pacman\ghost.h(76,33): warning C4309: '=': truncation of constant value
-C:\Users\Aviv\Desktop\stiven hacking\Pacman\ghost.h(92,33): warning C4309: '=': truncation of constant value
-C:\Users\Aviv\Desktop\stiven hacking\Pacman\ghost.h(108,33): warning C4309: '=': truncation of constant value
   Pacman.vcxproj -> C:\Users\Aviv\Desktop\stiven hacking\Pacman\Debug\Pacman.exe

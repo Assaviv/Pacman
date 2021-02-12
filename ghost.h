@@ -30,7 +30,6 @@ Ghost::~Ghost()
 
 inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 {
-	srand(time(NULL));
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_int_distribution<> distrib(0, 3);
@@ -41,9 +40,7 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 	{
 		if (count == 100)
 			again = false;
-		r = rand() % 4;
-		if (r % 2 == 0)
-			r = distrib(gen);
+		r = distrib(gen);
 		switch (r)
 		{
 		case 1:
@@ -62,7 +59,7 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 				throw(KILL);
 			}
 			break;
-		case 2:
+		case 2: // up
 			if (b[this->_x - 1][this->_y] == char(DOT) || b[this->_x - 1][this->_y] == ' ')
 			{
 				temp = b[this->_x - 1][this->_y];
@@ -73,12 +70,12 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 			}
 			if (b[this->_x - 1][this->_y] == PACMAN)
 			{
-				b[this->_x - 1][this->_y] = 178;
+				b[this->_x - 1][this->_y] = (char)178;
 				this->_x -= 1;
 				throw(KILL);
 			}
 			break;
-		case 0:
+		case 0: // right
 			if (b[this->_x][this->_y + 1] == char(DOT) || b[this->_x][this->_y + 1] == ' ')
 			{
 				temp = b[this->_x][this->_y + 1];
@@ -89,7 +86,7 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 			}
 			if (b[this->_x][this->_y + 1] == PACMAN)
 			{
-				b[this->_x][this->_y + 1] = 178;
+				b[this->_x][this->_y + 1] = (char)178;
 				this->_y += 1;
 				throw(KILL);
 			}
@@ -105,7 +102,7 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 			}
 			if (b[this->_x][this->_y - 1] == PACMAN)
 			{
-				b[this->_x][this->_y - 1] = 178;
+				b[this->_x][this->_y - 1] = (char)178;
 				this->_y -= 1;
 				throw(KILL);
 			}
