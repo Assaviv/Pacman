@@ -36,7 +36,7 @@ public:
 				 a new function that will get level as well and will return
 				 char** map accordingly.. */
 	~Board(); // Release memory of the board.
-	void printBoard(); // print each char according to color code.
+	void printBoard(bool = true); // print each char according to color code.
 	void finish();  // clear the broad from all the points
 	bool move(char dir);  // move char according to the direction..
 	void ghost1();  /*	will be remove for new ghost acting,		*/
@@ -44,7 +44,8 @@ public:
 	char** _board;  // try to make it  private
 	bool isalive(); // getter
 	int getScore(); // ^ as well
-	void gotoxy(size_t x, size_t y);
+	void gotoxy(short x, short y);
+	void printBoardChar(char c);  // will print char according to color code
 private:
 	bool alive;
 	Ghost g1;    // will be generated differently
@@ -111,13 +112,13 @@ Board::~Board()
 	delete[] this->_board;
 }
 
-inline void Board::printBoard()
+inline void Board::printBoard(bool b)
 {
 	std::string ps = "";
 	std::string temp = "";
 	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(h, 71);
-
+	gotoxy(0, -1);
 	if (this->score == 0)
 	{
 		ps = "--------------- Score: " + std::to_string(this->score) + " ---------------";
@@ -135,34 +136,38 @@ inline void Board::printBoard()
 		ps = "--------------- Score: " + std::to_string(this->score) + " ------------";
 	}
 	puts(ps.c_str());
-	for (int i = 0; i < H_BOARD_SIZE; i++)
+	SetConsoleTextAttribute(h, 15);
+	if (!b)
 	{
-		for (int j = 0; j < L_BOARD_SIZE; j++)
+		for (int i = 0; i < H_BOARD_SIZE; i++)
 		{
-			if (this->_board[i][j] == PACMAN)
+			for (int j = 0; j < L_BOARD_SIZE; j++)
 			{
-				SetConsoleTextAttribute(h, 6);
+				if (this->_board[i][j] == PACMAN)
+				{
+					SetConsoleTextAttribute(h, 6);
+				}
+				else if (this->_board[i][j] == WALL)
+				{
+					SetConsoleTextAttribute(h, 68);
+				}
+				else if (this->_board[i][j] == char(GHOST))
+				{
+					SetConsoleTextAttribute(h, 1);
+				}
+				if (this->_board[i][j] == PACMAN)
+				{
+					(this->open) ? (_putchar_nolock(open_)) : (_putchar_nolock(close_));
+					this->open = !this->open;
+				}
+				else
+				{
+					_putchar_nolock(this->_board[i][j]);
+				}
+				SetConsoleTextAttribute(h, 15);
 			}
-			else if (this->_board[i][j] == WALL)
-			{
-				SetConsoleTextAttribute(h, 68);
-			}
-			else if (this->_board[i][j] == char(GHOST))
-			{
-				SetConsoleTextAttribute(h, 1);
-			}
-			if (this->_board[i][j] == PACMAN)
-			{
-				(this->open) ? (_putchar_nolock(open_)) : (_putchar_nolock(close_));
-				this->open = !this->open;
-			}
-			else
-			{
-				_putchar_nolock(this->_board[i][j]);
-			}
-			SetConsoleTextAttribute(h, 15);
+			puts("");
 		}
-		puts("");
 	}
 }
 
@@ -177,7 +182,7 @@ inline void Board::finish()
 				this->_board[i][j] = ' ';
 				if (i%4 == 0 && j%4 == 0)
 				{
-					this->printBoard();
+					this->printBoard(false);
 					printf("\x1b[d");
 				}
 			}
@@ -206,6 +211,10 @@ inline bool Board::move(char dir)
 				{
 					return false;
 				}
+				gotoxy(this->_y, this->_x);
+				printBoardChar(' ');
+				gotoxy(this->_y + 1, this->_x);
+				printBoardChar(PACMAN);
 				this->_board[this->_x][this->_y] = ' ';
 				this->_board[this->_x][this->_y + 1] = PACMAN;
 				this->_y += 1;
@@ -224,6 +233,10 @@ inline bool Board::move(char dir)
 				{
 					return false;
 				}
+				gotoxy(this->_y, this->_x);
+				printBoardChar(' ');
+				gotoxy(this->_y, this->_x - 1);
+				printBoardChar(PACMAN);
 				this->_board[this->_x][this->_y] = ' ';
 				this->_board[this->_x - 1][this->_y] = PACMAN;
 				this->_x -= 1;
@@ -242,6 +255,10 @@ inline bool Board::move(char dir)
 				{
 					return false;
 				}
+				gotoxy(this->_y, this->_x);
+				printBoardChar(' ');
+				gotoxy(this->_y, this->_x + 1);
+				printBoardChar(PACMAN);
 				this->_board[this->_x][this->_y] = ' ';
 				this->_board[this->_x + 1][this->_y] = PACMAN;
 				this->_x += 1;
@@ -262,12 +279,17 @@ inline bool Board::move(char dir)
 				{
 					return false;
 				}
+				gotoxy(this->_y, this->_x);
+				printBoardChar(' ');
+				gotoxy(this->_y - 1, this->_x);
+				printBoardChar(PACMAN);
 				this->_board[this->_x][this->_y] = ' ';
 				this->_board[this->_x][this->_y - 1] = PACMAN;
 				this->_y -= 1;
 			}
 		}
 	}
+	gotoxy(0, 0);
 	return true;
 }
 
@@ -311,4 +333,33 @@ inline bool Board::isalive()
 inline int Board::getScore()
 {
 	return this->score;
+}
+
+inline void Board::gotoxy(short x, short y)
+{
+	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+	COORD pos = { x, ++y };
+	SetConsoleCursorPosition(h, pos);
+}
+
+inline void Board::printBoardChar(char c)
+{
+	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+	switch (c)
+	{
+		case PACMAN:
+			SetConsoleTextAttribute(h, 6);
+			(this->open) ? (_putchar_nolock(open_)) : (_putchar_nolock(close_));
+			this->open = !this->open;
+			SetConsoleTextAttribute(h, 15);
+			return;
+		case WALL:
+			SetConsoleTextAttribute(h, 68);
+			break;
+		case char(GHOST):
+			SetConsoleTextAttribute(h, 1);
+			break;
+	}
+	_putchar_nolock(c);
+	SetConsoleTextAttribute(h, 15);
 }

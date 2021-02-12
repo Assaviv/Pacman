@@ -13,6 +13,8 @@ public:
 	void Move(char** b);
 	void setX(int);
 	void setY(int);
+	void gotoxy(short, short);
+	void printBoardChar(char);
 private:
 	int _x;
 	int _y;
@@ -49,6 +51,10 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 				temp = b[this->_x + 1][this->_y];
 				b[this->_x + 1][this->_y] = b[this->_x][this->_y];
 				b[this->_x][this->_y] = (char)temp;
+				gotoxy(this->_y, this->_x);
+				printBoardChar(temp);
+				gotoxy(this->_y, this->_x + 1);
+				printBoardChar(char(GHOST));
 				this->_x += 1;
 				again = false;
 			}
@@ -65,6 +71,10 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 				temp = b[this->_x - 1][this->_y];
 				b[this->_x - 1][this->_y] = b[this->_x][this->_y];
 				b[this->_x][this->_y] = temp;
+				gotoxy(this->_y, this->_x);
+				printBoardChar(temp);
+				gotoxy(this->_y, this->_x - 1);
+				printBoardChar(char(GHOST));
 				this->_x -= 1;
 				again = false;
 			}
@@ -81,6 +91,10 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 				temp = b[this->_x][this->_y + 1];
 				b[this->_x][this->_y + 1] = b[this->_x][this->_y];
 				b[this->_x][this->_y] = temp;
+				gotoxy(this->_y, this->_x);
+				printBoardChar(temp);
+				gotoxy(this->_y + 1, this->_x);
+				printBoardChar(char(GHOST));
 				this->_y += 1;
 				again = false;
 			}
@@ -97,6 +111,10 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 				temp = b[this->_x][this->_y - 1];
 				b[this->_x][this->_y - 1] = b[this->_x][this->_y];
 				b[this->_x][this->_y] = temp;
+				gotoxy(this->_y, this->_x);
+				printBoardChar(temp);
+				gotoxy(this->_y - 1, this->_x );
+				printBoardChar(char(GHOST));
 				this->_y -= 1;
 				again = false;
 			}
@@ -109,6 +127,7 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 			break;
 		}
 		count++;
+		gotoxy(0, 0);
 	}
 }
 
@@ -120,4 +139,31 @@ inline void Ghost::setX(int x)
 inline void Ghost::setY(int y)
 {
 	this->_y = y;
+}
+
+
+inline void Ghost::gotoxy(short x, short y)
+{
+	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+	COORD pos = { x, ++y };
+	SetConsoleCursorPosition(h, pos);
+}
+
+inline void Ghost::printBoardChar(char c)
+{
+	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+	switch (c)
+	{
+	case PACMAN:
+		SetConsoleTextAttribute(h, 6);
+		break;
+	case WALL:
+		SetConsoleTextAttribute(h, 68);
+		break;
+	case char(GHOST):
+		SetConsoleTextAttribute(h, 1);
+		break;
+	}
+	_putchar_nolock(c);
+	SetConsoleTextAttribute(h, 15);
 }

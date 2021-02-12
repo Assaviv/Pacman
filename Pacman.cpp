@@ -4,6 +4,7 @@
 #include "Board.h"
 #include <conio.h>
 #include "resource.h"
+#include <chrono>
 
 /*********************************************
 * ~TODO: file system with .map files
@@ -11,6 +12,7 @@
 *		 ~~Fruit to collect more points
 *		 ~~~Settings and more customization
 *		 ~~~~Kill ghosts option
+*		 ~~~~~Kill works baddd
 *********************************************/
 /////////////////////////////////////////////
 /* .map files will be in levels dir and will be read according to this protocol: 
@@ -28,6 +30,8 @@
 */
 #define UP 72   /// try to get key without ASCII
 #define DOWN 80
+#define RIGHT 77
+#define LEFT 75
 
 int WINNING_SCORE = 2500;
 HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -37,10 +41,10 @@ int main()
 {
 	/* Variables: */
 	auto ans = IDYES;
-	bool exit = true, win = false;
+	bool exit = true, win = false, out = false;
 	int score = false;
 	Board* b = new Board();
-	char mov = ' ';
+	char mov = ' ', lastKey = 'a';
 	/* Console defaults */
 	CONSOLE_FONT_INFOEX cfi;
 	cfi.cbSize = sizeof(cfi);
@@ -62,29 +66,68 @@ int main()
 	banner(); // maybe will need to return value and built Board* b here.
 	/* Game start level */
 	system("mode 40,22");
+	b->printBoard(false);
+	// !_kbhit() for thread like
+	mov = _getch();
 	while (exit && b->isalive())
 	{
-		b->printBoard();
-		b->ghost1();
-		b->ghost1();
-		b->ghost2();
-		b->ghost2();
-		mov = _getch();
-		exit = b->move(mov);
-		score = b->getScore();
+		auto start = std::chrono::high_resolution_clock::now();
+		auto end = std::chrono::high_resolution_clock::now();
+		auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+		while (!_kbhit())
+		{		
+			b->printBoard();
+			dur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+			if (dur.count() > 150)
+			{
+				b->ghost2();
+				b->ghost2();
+				b->ghost1();
+				b->ghost1();
+				if (mov == 'a' ||  mov == 'd' || mov == 's' || mov == 'w'
+					|| mov == RIGHT || mov == LEFT || mov == DOWN || mov == UP)
+				{
+					lastKey = mov;
+				}
+				exit = b->move(lastKey);
+				score = b->getScore();
+				if (score >= WINNING_SCORE)
+				{
+					out = true;
+					break;
+				}
+				start = std::chrono::high_resolution_clock::now();
+			}
+			end = std::chrono::high_resolution_clock::now();
+		}
+		if (!out)
+		{
+			b->ghost1();
+			b->ghost1();
+			b->ghost2();
+			b->ghost2();
+			mov = _getch();
+			if (mov == 'a' || mov == 'd' || mov == 's' || mov == 'w'
+				|| mov == RIGHT || mov == LEFT || mov == DOWN || mov == UP)
+			{
+				lastKey = mov;
+			}
+			exit = b->move(lastKey);
+			score = b->getScore();
+			Sleep(150);
+		}
+
 		if (score >= WINNING_SCORE)
 		{
 			win = true;
 			exit = false;
 		}
-		printf("\x1b[d");
-		//Sleep(100);  // option for slower game check
 	}
 	/* End of the game */
 	(win) ? (PlaySoundW(TEXT("music/tada.wav"), NULL, SND_FILENAME | SND_ASYNC)) : (PlaySoundW(TEXT("music/death.wav"), NULL, SND_FILENAME | SND_ASYNC));
 	b->finish();
 	system("mode 40,25");
-	b->printBoard();
+	b->printBoard(false);
 	// TODO: replace all () ? () : ();
 	(win) ? (std::cout << "----------------------------------------\n" << "-----------YOU-----------WIN!-----------\n\a" << "----------------------------------------\n") :
 		(std::cout << "----------------------------------------\n" << "-----------YOU-----------LOST-----------\n\a" << "----------------------------------------\n");
