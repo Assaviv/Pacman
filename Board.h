@@ -39,8 +39,8 @@ public:
 	void printBoard(bool = true); // print each char according to color code.
 	void finish();  // clear the broad from all the points
 	bool move(char dir);  // move char according to the direction..
-	void ghost1();  /*	will be remove for new ghost acting,		*/
-	void ghost2();	/*			the ghost now moves randomly to the same spot*/
+	void ghost();  /*	will be remove for new ghost acting,		*/
+					/*			the ghost now moves randomly to the same spot*/
 	char** _board;  // try to make it  private
 	bool isalive(); // getter
 	int getScore(); // ^ as well
@@ -292,37 +292,27 @@ inline bool Board::move(char dir)
 	return true;
 }
 
-inline void Board::ghost1()
+inline void Board::ghost()
 {
 	try
 	{
 		this->g1.Move(this->_board);
-		this->g1.Move(this->_board);
 		this->g2.Move(this->_board);
-		this->g2.Move(this->_board);
-	}
-	catch (...)
-	{
-		this->alive = false;
-	}
-
-}
-
-inline void Board::ghost2()
-{
-	try
-	{
-		this->g3.Move(this->_board);
 		this->g3.Move(this->_board);
 		this->g4.Move(this->_board);
+		this->g1.Move(this->_board);
+		this->g2.Move(this->_board);
+		this->g3.Move(this->_board);
 		this->g4.Move(this->_board);
 	}
 	catch (...)
 	{
 		this->alive = false;
+		throw(KILL);
 	}
 
 }
+
 
 inline bool Board::isalive()
 {

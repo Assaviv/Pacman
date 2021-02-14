@@ -61,6 +61,8 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 			if (b[this->_x + 1][this->_y] == PACMAN)
 			{
 				b[this->_x + 1][this->_y] = (char)178;
+				gotoxy(this->_y , this->_x + 1);
+				printBoardChar(char(178));
 				this->_x += 1;
 				throw(KILL);
 			}
@@ -81,6 +83,8 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 			if (b[this->_x - 1][this->_y] == PACMAN)
 			{
 				b[this->_x - 1][this->_y] = (char)178;
+				gotoxy(this->_y , this->_x- 1);
+				printBoardChar(char(178));
 				this->_x -= 1;
 				throw(KILL);
 			}
@@ -101,6 +105,8 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 			if (b[this->_x][this->_y + 1] == PACMAN)
 			{
 				b[this->_x][this->_y + 1] = (char)178;
+				gotoxy(this->_y + 1, this->_x);
+				printBoardChar(char(178));
 				this->_y += 1;
 				throw(KILL);
 			}
@@ -121,6 +127,8 @@ inline void Ghost::Move(char** b) // CHECK IF PACMAN THEN KILL
 			if (b[this->_x][this->_y - 1] == PACMAN)
 			{
 				b[this->_x][this->_y - 1] = (char)178;
+				gotoxy(this->_y - 1, this->_x);
+				printBoardChar(char(178));
 				this->_y -= 1;
 				throw(KILL);
 			}

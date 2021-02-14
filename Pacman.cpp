@@ -8,13 +8,13 @@
 
 /*********************************************
 * ~TODO: file system with .map files
-*		 ~Warm holes (according to protocol)
-*		 ~~Fruit to collect more points
-*		 ~~~Settings and more customization
-*		 ~~~~Kill ghosts option
-*		 ~~~~~Kill works bad
-*		 ~~~~~~Try catch.. throw smth when killed so the catch will handle the death
-*		 ~~~~~~~Check double movement on pacman
+*[]		 ~Warm holes (according to protocol)
+*[]		 ~~Fruit to collect more points
+*[]		 ~~~Settings and more customization
+*[]		 ~~~~Kill ghosts option
+*[]		 ~~~~~Kill works bad
+*[]		 ~~~~~~Try catch.. throw smth when killed so the catch will handle the death
+*[*]  	 ~~~~~~~Check double movement on pacman  
 *********************************************/
 /////////////////////////////////////////////
 /* .map files will be in levels dir and will be read according to this protocol: 
@@ -34,6 +34,7 @@
 #define DOWN 80
 #define RIGHT 77
 #define LEFT 75
+#define ENTER 13
 
 int WINNING_SCORE = 2500;
 HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -46,7 +47,7 @@ int main()
 	bool exit = true, win = false, out = false;
 	int score = false;
 	Board* b = new Board();
-	char mov = ' ', lastKey = 'a';
+	char mov = ' ', lastKey = ' ';
 	/* Console defaults */
 	CONSOLE_FONT_INFOEX cfi;
 	cfi.cbSize = sizeof(cfi);
@@ -70,65 +71,81 @@ int main()
 	system("mode 40,22");
 	b->printBoard(false);
 	// !_kbhit() for thread like
-	mov = _getch();
-	while (exit && b->isalive())
-	{	
-		//mov = _getch(); // move that inside the loop will solve the two block problem
-						// but will get stuck while multi-pressing
-
-		auto start = std::chrono::high_resolution_clock::now();
-		auto end = std::chrono::high_resolution_clock::now();
-		auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-		while (!_kbhit())
-		{		
-			b->printBoard();
-			dur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-			if (dur.count() > 150 && b->isalive())
+	do
+	{
+		mov = _getch();
+	} while (mov != 'a' && mov != 'd' && mov != 's' && mov != 'w'
+		&& mov != RIGHT && mov != LEFT && mov != DOWN && mov != UP);
+	try
+	{
+		while (exit && b->isalive())
+		{
+			auto start = std::chrono::high_resolution_clock::now();
+			auto end = std::chrono::high_resolution_clock::now();
+			auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+			while (!_kbhit())
 			{
-				b->ghost2();
-				b->ghost2();
-				b->ghost1();
-				b->ghost1();
-				if (mov == 'a' ||  mov == 'd' || mov == 's' || mov == 'w'
-					|| mov == RIGHT || mov == LEFT || mov == DOWN || mov == UP)
+				dur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+				if (dur.count() > 150 && b->isalive())
 				{
-					lastKey = mov;
+					b->ghost();
+					b->ghost();
+					if (b->isalive())
+					{
+						if (mov == 'a' || mov == 'd' || mov == 's' || mov == 'w'
+							|| mov == RIGHT || mov == LEFT || mov == DOWN || mov == UP)
+						{
+							lastKey = mov;
+						}
+						exit = b->move(lastKey);
+						score = b->getScore();
+					}
+
+					if (score >= WINNING_SCORE || !b->isalive())
+					{
+						out = false;
+						goto done;
+						break;
+					}
+					start = std::chrono::high_resolution_clock::now();
 				}
-				exit = b->move(lastKey);
-				score = b->getScore();
-				if (score >= WINNING_SCORE || !b->isalive())
-				{		
-					out = false;
-					goto done;
-					break;
-				}
-				start = std::chrono::high_resolution_clock::now();
+				end = std::chrono::high_resolution_clock::now();
+				b->printBoard();
 			}
-			end = std::chrono::high_resolution_clock::now();
-		}
-		///*
-		if (!out)
-		{
-			b->ghost1();
-			b->ghost1();
-			b->ghost2();
-			b->ghost2();
-			mov = _getch();
-			//if (mov == 'a' || mov == 'd' || mov == 's' || mov == 'w'
-				//|| mov == RIGHT || mov == LEFT || mov == DOWN || mov == UP)
-			//{
-				//lastKey = mov;
-			//}
-			exit = b->move(mov);
-			score = b->getScore();
-			b->printBoard();
-			Sleep(150);
-		}//*/
+			if (!out)
+			{
+				b->ghost();
+				b->ghost();
+				if (b->isalive())
+				{
+					mov = _getch();
+					if ((mov == 'a' || mov == 'd' || mov == 's' || mov == 'w'
+						|| mov == RIGHT || mov == LEFT || mov == DOWN || mov == UP))
+					{
+						exit = b->move(mov);
+					}
+					else
+					{
+						exit = b->move(lastKey);
+					}
+				}
+				score = b->getScore();
+				b->printBoard();
+				Sleep(150);
+			}
 		done:
-		if (score >= WINNING_SCORE)
+			if (score >= WINNING_SCORE)
+			{
+				win = true;
+				exit = false;
+			}
+		}
+	}
+	catch (...)
+	{
+		if (!b->isalive())
 		{
-			win = true;
-			exit = false;
+			win = false;
 		}
 	}
 	/* End of the game */
@@ -136,16 +153,22 @@ int main()
 	b->finish();
 	system("mode 40,25");
 	b->printBoard(false);
-	// TODO: replace all () ? () : ();
-	(win) ? (std::cout << "----------------------------------------\n" << "-----------YOU-----------WIN!-----------\n\a" << "----------------------------------------\n") :
-		(std::cout << "----------------------------------------\n" << "-----------YOU-----------LOST-----------\n\a" << "----------------------------------------\n");
-	(win) ? (ans = MessageBox(NULL, L"You succeed collecting all the points!\nDo you wanna play again?", L"Congratulation!", MB_YESNO)):
-		(ans = MessageBox(NULL, L"You were killed by a ghost👻\nDo you wanna play again?", L"Oh No!", MB_YESNO));
+	if (win)
+	{
+		std::cout << "----------------------------------------\n" << "-----------YOU-----------WIN!-----------\n\a" << "----------------------------------------\n";
+		ans = MessageBox(NULL, L"You succeed collecting all the points!\nDo you wanna play again?", L"Congratulation!", MB_YESNO);
+	}
+	else
+	{
+		std::cout << "----------------------------------------\n" << "-----------YOU-----------LOST-----------\n\a" << "----------------------------------------\n";
+		ans = MessageBox(NULL, L"You were killed by a ghost👻\nDo you wanna play again?", L"Oh No!", MB_YESNO);
+	}
+	if (ans == IDYES) 
+		main();
 	lpCursor.bVisible = true;
 	lpCursor.dwSize = 10;
 	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &lpCursor);
-	if (ans == IDYES)  // maybe gets it up a bit..
-		main();
+
 	return 0;
 }
 
@@ -215,7 +238,7 @@ void banner()
 		std::cout << "                                        \n";
 		ans = _getch();
 		printf("\x1b[d");
-	} while (ans != 13);
+	} while (ans != ENTER);
 	switch (place)
 	{
 	case 0:
