@@ -14,6 +14,7 @@
 *		 ~~~~Kill ghosts option
 *		 ~~~~~Kill works bad
 *		 ~~~~~~Try catch.. throw smth when killed so the catch will handle the death
+*		 ~~~~~~~Check double movement on pacman
 *********************************************/
 /////////////////////////////////////////////
 /* .map files will be in levels dir and will be read according to this protocol: 
@@ -71,7 +72,10 @@ int main()
 	// !_kbhit() for thread like
 	mov = _getch();
 	while (exit && b->isalive())
-	{
+	{	
+		//mov = _getch(); // move that inside the loop will solve the two block problem
+						// but will get stuck while multi-pressing
+
 		auto start = std::chrono::high_resolution_clock::now();
 		auto end = std::chrono::high_resolution_clock::now();
 		auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -93,15 +97,16 @@ int main()
 				exit = b->move(lastKey);
 				score = b->getScore();
 				if (score >= WINNING_SCORE || !b->isalive())
-				{
+				{		
+					out = false;
 					goto done;
-					out = true;
 					break;
 				}
 				start = std::chrono::high_resolution_clock::now();
 			}
 			end = std::chrono::high_resolution_clock::now();
 		}
+		///*
 		if (!out)
 		{
 			b->ghost1();
@@ -109,15 +114,16 @@ int main()
 			b->ghost2();
 			b->ghost2();
 			mov = _getch();
-			if (mov == 'a' || mov == 'd' || mov == 's' || mov == 'w'
-				|| mov == RIGHT || mov == LEFT || mov == DOWN || mov == UP)
-			{
-				lastKey = mov;
-			}
-			exit = b->move(lastKey);
+			//if (mov == 'a' || mov == 'd' || mov == 's' || mov == 'w'
+				//|| mov == RIGHT || mov == LEFT || mov == DOWN || mov == UP)
+			//{
+				//lastKey = mov;
+			//}
+			exit = b->move(mov);
 			score = b->getScore();
+			b->printBoard();
 			Sleep(150);
-		}
+		}//*/
 		done:
 		if (score >= WINNING_SCORE)
 		{
@@ -205,11 +211,11 @@ void banner()
 			std::cout << "                                '--'    \n";
 			break;
 		}
-		std::cout << "             [s]: To select             \n";
+		std::cout << "           [Enter]: To select           \n";
 		std::cout << "                                        \n";
 		ans = _getch();
 		printf("\x1b[d");
-	} while (ans != 's' && ans != 'S');
+	} while (ans != 13);
 	switch (place)
 	{
 	case 0:
