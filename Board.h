@@ -190,7 +190,9 @@ inline void Board::finish()
 	}
 }
 
-inline bool Board::move(char dir)
+// some how key down then right make down up right
+// try to clean the buffer
+inline bool Board::move(char dir) 
 {
 	if (dir == 'w' || dir == 'a' || dir == 's' || dir == 'd' ||
 		dir == UP_ARROW || dir == DOWN_ARROW || dir == RIGHT_ARROW || dir == LEFT_ARROW)

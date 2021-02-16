@@ -14,7 +14,8 @@
 *[]		 ~~~~Kill ghosts option
 *[]		 ~~~~~Kill works bad
 *[]		 ~~~~~~Try catch.. throw smth when killed so the catch will handle the death
-*[*]  	 ~~~~~~~Check double movement on pacman  
+*[*]  	 ~~~~~~~Check double movement on pacman 
+*[]		 ~~~~~~~~Add check if 224 get-ch and then up down left right functions then function to check input generally
 *********************************************/
 /////////////////////////////////////////////
 /* .map files will be in levels dir and will be read according to this protocol: 
@@ -100,7 +101,6 @@ int main()
 						exit = b->move(lastKey);
 						score = b->getScore();
 					}
-
 					if (score >= WINNING_SCORE || !b->isalive())
 					{
 						out = false;
